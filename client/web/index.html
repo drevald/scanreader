@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ScanReader Web</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: system-ui, sans-serif;
+    background: #f5f0ea;
+    color: #1c1b1f;
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── toolbar ── */
+  #toolbar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 16px;
+    background: #d4c5b2;
+    flex-shrink: 0;
+    flex-wrap: wrap;
+  }
+  #toolbar h1 { font-size: 18px; font-weight: 700; margin-right: 8px; }
+
+  #server-url {
+    padding: 4px 8px;
+    border: 1px solid #9e8e7a;
+    border-radius: 4px;
+    font-size: 13px;
+    width: 220px;
+    background: #fff;
+  }
+
+  .btn {
+    padding: 6px 14px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .btn-primary { background: #8b7d6b; color: #fff; }
+  .btn-primary:hover { background: #7a6c5c; }
+  .btn-primary:disabled { background: #c4b9ad; cursor: default; }
+
+  #hint {
+    font-size: 12px;
+    color: #5a4e42;
+    margin-left: auto;
+  }
+
+  /* ── main area ── */
+  #main {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+    gap: 0;
+  }
+
+  /* ── canvas panel ── */
+  #canvas-panel {
+    flex: 1 1 60%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: auto;
+    padding: 16px;
+    position: relative;
+  }
+
+  #drop-zone {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px dashed #9e8e7a;
+    border-radius: 8px;
+    color: #9e8e7a;
+    font-size: 15px;
+    text-align: center;
+    line-height: 1.6;
+    cursor: pointer;
+  }
+  #drop-zone.hidden { display: none; }
+
+  #canvas-wrap {
+    position: relative;
+    display: none; /* shown after image loaded */
+  }
+  #canvas-wrap.visible { display: inline-block; }
+
+  #page-canvas {
+    display: block;
+    max-width: 100%;
+    border: 1px solid #c4b9ad;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0,0,0,.12);
+  }
+
+  /* legend */
+  #legend {
+    display: flex;
+    gap: 12px;
+    margin-top: 8px;
+    font-size: 12px;
+    flex-wrap: wrap;
+  }
+  .legend-item { display: flex; align-items: center; gap: 4px; }
+  .legend-swatch {
+    width: 14px; height: 14px;
+    border-radius: 2px;
+    border: 2px solid;
+  }
+
+  /* ── text panel ── */
+  #text-panel {
+    flex: 0 0 340px;
+    border-left: 1px solid #c4b9ad;
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    overflow: hidden;
+  }
+
+  #text-panel h2 {
+    font-size: 14px;
+    font-weight: 600;
+    padding: 10px 14px;
+    background: #ece7e0;
+    border-bottom: 1px solid #c4b9ad;
+    flex-shrink: 0;
+  }
+
+  #text-output {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px 14px;
+    font-size: 14px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  .text-block {
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #f0ece6;
+  }
+  .text-block:last-child { border-bottom: none; }
+
+  .block-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  #status {
+    font-size: 12px;
+    padding: 6px 14px;
+    background: #f5f0ea;
+    border-top: 1px solid #c4b9ad;
+    flex-shrink: 0;
+    min-height: 28px;
+  }
+
+  /* spinner */
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .spinner {
+    display: inline-block;
+    width: 12px; height: 12px;
+    border: 2px solid #8b7d6b;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin .7s linear infinite;
+    vertical-align: middle;
+    margin-right: 6px;
+  }
+</style>
+</head>
+<body>
+
+<!-- ── toolbar ─────────────────────────────────────────── -->
+<div id="toolbar">
+  <h1>Scan Reader</h1>
+  <label for="server-url" style="font-size:13px">Server:</label>
+  <input id="server-url" type="text" value="" />
+  <label class="btn btn-primary" style="cursor:pointer">
+    Open file
+    <input id="file-input" type="file" accept="image/jpeg,image/png,image/tiff" style="display:none" />
+  </label>
+  <button id="paste-btn" class="btn btn-primary">Paste</button>
+  <button id="process-btn" class="btn btn-primary" disabled>Process</button>
+  <span id="hint">Ctrl+V anywhere on the page also works</span>
+</div>
+
+<!-- ── main ─────────────────────────────────────────────── -->
+<div id="main">
+
+  <!-- canvas side -->
+  <div id="canvas-panel">
+    <div id="drop-zone">
+      Drop a scanned page here,<br/>
+      click <strong>Open file</strong>, or paste from clipboard.
+    </div>
+    <div id="canvas-wrap">
+      <canvas id="page-canvas"></canvas>
+      <div id="legend">
+        <div class="legend-item">
+          <div class="legend-swatch" style="background:rgba(30,100,255,.15);border-color:#1e64ff"></div>
+          Text
+        </div>
+        <div class="legend-item">
+          <div class="legend-swatch" style="background:rgba(140,0,255,.15);border-color:#8c00ff"></div>
+          Heading
+        </div>
+        <div class="legend-item">
+          <div class="legend-swatch" style="background:rgba(0,170,60,.15);border-color:#00aa3c"></div>
+          Picture
+        </div>
+        <div class="legend-item">
+          <div class="legend-swatch" style="background:rgba(255,120,0,.15);border-color:#ff7800"></div>
+          Table
+        </div>
+        <div class="legend-item">
+          <div class="legend-swatch" style="background:rgba(110,110,110,.15);border-color:#6e6e6e"></div>
+          Footer
+        </div>
+        <div class="legend-item">
+          <div class="legend-swatch" style="background:rgba(0,190,190,.15);border-color:#00bebe"></div>
+          Reference
+        </div>
+        <div class="legend-item">
+          <div class="legend-swatch" style="background:rgba(200,0,60,.15);border-color:#c8003c"></div>
+          Formula
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- text side -->
+  <div id="text-panel">
+    <h2>OCR Output</h2>
+    <div id="text-output"><span style="color:#9e8e7a;font-size:13px">Process a page to see OCR results.</span></div>
+    <div id="status"></div>
+  </div>
+
+</div>
+
+<script>
+// ── state ──────────────────────────────────────────────────────────────────
+let currentImage = null;   // HTMLImageElement
+let currentPageData = null;
+let sessionId = 'web-' + Date.now();
+
+const BLOCK_STYLES = {
+  TEXT:      { fill: 'rgba(30,100,255,.10)',  stroke: '#1e64ff' },
+  HEADING:   { fill: 'rgba(140,0,255,.10)',   stroke: '#8c00ff' },
+  PICTURE:   { fill: 'rgba(0,170,60,.10)',    stroke: '#00aa3c' },
+  TABLE:     { fill: 'rgba(255,120,0,.10)',   stroke: '#ff7800' },
+  FOOTER:    { fill: 'rgba(110,110,110,.10)', stroke: '#6e6e6e' },
+  REFERENCE: { fill: 'rgba(0,190,190,.10)',   stroke: '#00bebe' },
+  FORMULA:   { fill: 'rgba(200,0,60,.10)',    stroke: '#c8003c' },
+};
+
+// ── elements ────────────────────────────────────────────────────────────────
+const fileInput    = document.getElementById('file-input');
+const processBtn   = document.getElementById('process-btn');
+const canvas       = document.getElementById('page-canvas');
+const canvasWrap   = document.getElementById('canvas-wrap');
+const dropZone     = document.getElementById('drop-zone');
+const textOutput   = document.getElementById('text-output');
+const statusEl     = document.getElementById('status');
+const serverUrlEl  = document.getElementById('server-url');
+const ctx          = canvas.getContext('2d');
+
+// default server URL
+serverUrlEl.value = window.location.origin.startsWith('file')
+  ? 'http://localhost:8001'
+  : window.location.origin.replace('scanreader.dobby', 'scanapi.dobby');
+
+// ── load image ──────────────────────────────────────────────────────────────
+function loadImageFile(file) {
+  if (!file || !file.type.startsWith('image/')) return;
+  const url = URL.createObjectURL(file);
+  const img = new Image();
+  img.onload = () => {
+    currentImage = img;
+    currentPageData = null;
+    renderCanvas(img, null);
+    processBtn.disabled = false;
+    setStatus('Image loaded — click Process to send to server.');
+    clearText();
+  };
+  img.src = url;
+}
+
+function loadImageBlob(blob) {
+  loadImageFile(blob);
+}
+
+// ── canvas rendering ─────────────────────────────────────────────────────────
+function renderCanvas(img, pageData) {
+  // fit image into available panel width (max 900px)
+  const maxW = Math.min(canvasWrap.parentElement.clientWidth - 32, 900);
+  const scale = Math.min(maxW / img.naturalWidth, 1);
+  canvas.width  = Math.round(img.naturalWidth  * scale);
+  canvas.height = Math.round(img.naturalHeight * scale);
+
+  ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+  if (pageData) {
+    const sx = canvas.width  / pageData.width;
+    const sy = canvas.height / pageData.height;
+    pageData.blocks.forEach(block => {
+      const style = BLOCK_STYLES[block.type] || BLOCK_STYLES.TEXT;
+      const { x, y, width, height } = block.bbox;
+      ctx.fillStyle = style.fill;
+      ctx.strokeStyle = style.stroke;
+      ctx.lineWidth = 2;
+      ctx.fillRect(x * sx, y * sy, width * sx, height * sy);
+      ctx.strokeRect(x * sx, y * sy, width * sx, height * sy);
+    });
+  }
+
+  dropZone.classList.add('hidden');
+  canvasWrap.classList.add('visible');
+}
+
+// ── text panel ───────────────────────────────────────────────────────────────
+function renderText(pageData) {
+  textOutput.innerHTML = '';
+  pageData.blocks.forEach((block, i) => {
+    const div = document.createElement('div');
+    div.className = 'text-block';
+
+    const label = document.createElement('div');
+    label.className = 'block-label';
+    const style = BLOCK_STYLES[block.type] || BLOCK_STYLES.TEXT;
+    label.style.color = style.stroke;
+    label.textContent = (block.type || 'BLOCK') + ` #${i + 1}`;
+    div.appendChild(label);
+
+    if (block.type === 'PICTURE') {
+      if (block.imageUrl) {
+        const img = document.createElement('img');
+        img.src = serverUrlEl.value + block.imageUrl;
+        img.style.maxWidth = '100%';
+        div.appendChild(img);
+      } else {
+        const note = document.createElement('em');
+        note.textContent = '[picture]';
+        note.style.color = '#9e8e7a';
+        div.appendChild(note);
+      }
+    } else {
+      const p = document.createElement('p');
+      p.textContent = block.text || '';
+      div.appendChild(p);
+    }
+
+    textOutput.appendChild(div);
+  });
+}
+
+function clearText() {
+  textOutput.innerHTML = '<span style="color:#9e8e7a;font-size:13px">Process a page to see OCR results.</span>';
+}
+
+// ── status ────────────────────────────────────────────────────────────────────
+function setStatus(msg, loading = false) {
+  statusEl.innerHTML = loading
+    ? `<span class="spinner"></span>${msg}`
+    : msg;
+}
+
+// ── process ───────────────────────────────────────────────────────────────────
+processBtn.addEventListener('click', async () => {
+  if (!currentImage) return;
+  const base = serverUrlEl.value.replace(/\/$/, '');
+  processBtn.disabled = true;
+  setStatus('Uploading page image…', true);
+
+  try {
+    // convert canvas to JPEG blob
+    const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.92));
+
+    // 1. upload image
+    const pageNum = 0;
+    const fd = new FormData();
+    fd.append('file', blob, 'page.jpg');
+    const upRes = await fetch(`${base}/pages/${sessionId}/${pageNum}`, {
+      method: 'POST', body: fd
+    });
+    if (!upRes.ok) throw new Error(`Upload failed: ${upRes.status}`);
+    const { image_id } = await upRes.json();
+
+    // 2. process via JSON-RPC
+    setStatus('Processing — waiting for server…', true);
+    const rpcRes = await fetch(`${base}/rpc`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        jsonrpc: '2.0',
+        method: 'process_page',
+        params: { book_id: sessionId, page_num: pageNum, image_id },
+        id: 1
+      })
+    });
+    if (!rpcRes.ok) throw new Error(`RPC request failed: ${rpcRes.status}`);
+    const rpcBody = await rpcRes.json();
+    if (rpcBody.error) throw new Error(rpcBody.error.message);
+
+    currentPageData = rpcBody.result;
+    renderCanvas(currentImage, currentPageData);
+    renderText(currentPageData);
+    setStatus(`Done — ${currentPageData.blocks.length} block(s) found.`);
+  } catch (e) {
+    setStatus(`Error: ${e.message}`);
+  } finally {
+    processBtn.disabled = false;
+  }
+});
+
+// ── paste button ─────────────────────────────────────────────────────────────
+document.getElementById('paste-btn').addEventListener('click', async () => {
+  try {
+    const clipItems = await navigator.clipboard.read();
+    for (const clipItem of clipItems) {
+      for (const type of clipItem.types) {
+        if (type.startsWith('image/')) {
+          loadImageBlob(await clipItem.getType(type));
+          return;
+        }
+      }
+    }
+    setStatus('No image found in clipboard.');
+  } catch (e) {
+    setStatus('Clipboard access denied — use Ctrl+V or Open file instead.');
+  }
+});
+
+// ── file input ────────────────────────────────────────────────────────────────
+fileInput.addEventListener('change', () => {
+  if (fileInput.files[0]) loadImageFile(fileInput.files[0]);
+  fileInput.value = '';
+});
+
+// ── clipboard paste ───────────────────────────────────────────────────────────
+document.addEventListener('paste', async e => {
+  // try legacy clipboardData first (works in all browsers)
+  const items = (e.clipboardData || e.originalEvent?.clipboardData)?.items;
+  if (items) {
+    for (const item of items) {
+      if (item.type.startsWith('image/')) {
+        loadImageBlob(item.getAsFile());
+        return;
+      }
+    }
+  }
+  // fallback: async Clipboard API
+  try {
+    const clipItems = await navigator.clipboard.read();
+    for (const clipItem of clipItems) {
+      for (const type of clipItem.types) {
+        if (type.startsWith('image/')) {
+          const blob = await clipItem.getType(type);
+          loadImageBlob(blob);
+          return;
+        }
+      }
+    }
+  } catch {
+    // clipboard-read permission denied or not supported — ignore
+  }
+});
+
+// ── drag & drop ───────────────────────────────────────────────────────────────
+const panel = document.getElementById('canvas-panel');
+panel.addEventListener('dragover', e => { e.preventDefault(); dropZone.style.borderColor = '#8b7d6b'; });
+panel.addEventListener('dragleave', () => { dropZone.style.borderColor = ''; });
+panel.addEventListener('drop', e => {
+  e.preventDefault();
+  dropZone.style.borderColor = '';
+  const file = e.dataTransfer?.files?.[0];
+  if (file) loadImageFile(file);
+});
+</script>
+</body>
+</html>

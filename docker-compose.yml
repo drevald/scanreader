@@ -1,0 +1,14 @@
+services:
+  reader:
+    build: ./client/web
+    ports:
+      - "8083:80"
+    restart: unless-stopped
+
+  api:
+    build: .
+    ports:
+      - "8001:8001"
+    volumes:
+      - /storage/scanreader/data:/app/server/data
+    restart: unless-stopped
