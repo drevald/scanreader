@@ -6,9 +6,19 @@ services:
     restart: unless-stopped
 
   api:
-    build: .
+    build:
+      context: ..
+      dockerfile: scanreader/Dockerfile
+      args:
+        PIPELINE_COMMIT: ${PIPELINE_COMMIT:-unknown}
     ports:
       - "8001:8001"
+    environment:
+      - PAGES_DIR=/app/server/pages
     volumes:
       - /storage/scanreader/data:/app/server/data
+      - /storage/scanreader/pages:/app/server/pages
+      - /storage/scanreader/models:/deps/document_layout/models:ro
+      - /storage/scanreader/doctr-cache:/root/.cache/doctr
+      - /storage/scanreader/easyocr-cache:/root/.EasyOCR
     restart: unless-stopped

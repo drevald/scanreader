@@ -2,3 +2,10 @@ fastapi>=0.110.0
 uvicorn[standard]>=0.29.0
 python-multipart>=0.0.9
 Pillow>=10.3.0
+
+# document layout + OCR (from sibling project, scanreader-integration branch)
+-e /deps/document_layout
+doclayout-yolo>=0.0.4
+
+pytesseract>=0.3.10
+langdetect>=1.0.9

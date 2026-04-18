@@ -1,0 +1,12 @@
+client/
+.claude/
+server/data/
+**/__pycache__/
+**/*.pyc
+*.md
+.git/
+document_layout/.git/
+document_layout/notebooks/
+document_layout/tests/
+document_layout/testscripts/
+document_layout/docs/

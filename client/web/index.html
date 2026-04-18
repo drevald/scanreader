@@ -48,6 +48,29 @@
   .btn-primary { background: #8b7d6b; color: #fff; }
   .btn-primary:hover { background: #7a6c5c; }
   .btn-primary:disabled { background: #c4b9ad; cursor: default; }
+  .btn-sm {
+    padding: 2px 8px;
+    font-size: 12px;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    font-weight: 600;
+    background: #c4b9ad;
+    color: #1c1b1f;
+  }
+  .btn-sm:hover { background: #b0a496; }
+  .btn-sm:disabled { opacity: .45; cursor: default; }
+  #lang-select {
+    padding: 2px 6px;
+    font-size: 12px;
+    border: 1px solid #9e8e7a;
+    border-radius: 3px;
+    cursor: pointer;
+    font-weight: 600;
+    background: #c4b9ad;
+    color: #1c1b1f;
+    height: 22px;
+  }
 
   #hint {
     font-size: 12px;
@@ -55,13 +78,168 @@
     margin-left: auto;
   }
 
-  /* ── main area ── */
+  /* ── shared view wrapper ── */
+  .view {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px;
+  }
+  .view.hidden { display: none; }
+
+  /* ── home view ── */
+  #home-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  #home-header h2 {
+    font-size: 16px;
+    font-weight: 700;
+    color: #5a4e42;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+  }
+  #home-empty {
+    text-align: center;
+    color: #9e8e7a;
+    margin-top: 60px;
+    font-size: 15px;
+    line-height: 1.7;
+  }
+  #home-empty strong { color: #5a4e42; }
+
+  #home-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 16px;
+  }
+
+  .page-card {
+    background: #fff;
+    border-radius: 8px;
+    border: 2px solid transparent;
+    overflow: hidden;
+    cursor: pointer;
+    transition: border-color .15s, box-shadow .15s;
+  }
+  .page-card:hover {
+    border-color: #9e8e7a;
+    box-shadow: 0 3px 10px rgba(0,0,0,.10);
+  }
+
+  .card-thumb {
+    width: 100%;
+    aspect-ratio: 3/4;
+    object-fit: cover;
+    background: #d4c5b2;
+    display: block;
+  }
+
+  .card-body {
+    padding: 8px 8px 4px;
+  }
+  .card-name {
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .card-meta {
+    font-size: 11px;
+    color: #8b7d6b;
+    margin-top: 3px;
+    line-height: 1.4;
+  }
+  .card-actions {
+    display: flex;
+    gap: 6px;
+    padding: 6px 8px 8px;
+  }
+
+  /* ── versions view ── */
+  #versions-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+  #versions-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #5a4e42;
+  }
+  #versions-status {
+    font-size: 12px;
+    color: #5a4e42;
+    margin-right: auto;
+  }
+  #versions-empty {
+    text-align: center;
+    color: #9e8e7a;
+    margin-top: 60px;
+    font-size: 15px;
+    line-height: 1.7;
+  }
+  #versions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
+  }
+
+  .ver-card {
+    background: #fff;
+    border-radius: 8px;
+    border: 2px solid transparent;
+    overflow: hidden;
+    cursor: pointer;
+    transition: border-color .15s, box-shadow .15s;
+  }
+  .ver-card:hover { border-color: #9e8e7a; box-shadow: 0 3px 10px rgba(0,0,0,.10); }
+
+  .ver-canvas {
+    width: 100%;
+    display: block;
+    background: #d4c5b2;
+  }
+
+  .ver-info {
+    padding: 8px 10px 4px;
+  }
+  .ver-num {
+    font-size: 13px;
+    font-weight: 700;
+    color: #1c1b1f;
+  }
+  .ver-time {
+    font-size: 11px;
+    color: #8b7d6b;
+    margin-top: 1px;
+  }
+  .ver-commit {
+    font-size: 11px;
+    color: #8b7d6b;
+    font-family: monospace;
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .ver-actions {
+    display: flex;
+    gap: 6px;
+    padding: 6px 8px 8px;
+  }
+
+  /* ── main area (reader view) ── */
   #main {
     display: flex;
     flex: 1;
     overflow: hidden;
-    gap: 0;
   }
+  #main.hidden { display: none; }
 
   /* ── canvas panel ── */
   #canvas-panel {
@@ -93,7 +271,7 @@
 
   #canvas-wrap {
     position: relative;
-    display: none; /* shown after image loaded */
+    display: none;
   }
   #canvas-wrap.visible { display: inline-block; }
 
@@ -122,7 +300,7 @@
 
   /* ── text panel ── */
   #text-panel {
-    flex: 0 0 340px;
+    flex: 0 0 320px;
     border-left: 1px solid #c4b9ad;
     display: flex;
     flex-direction: column;
@@ -130,14 +308,57 @@
     overflow: hidden;
   }
 
-  #text-panel h2 {
-    font-size: 14px;
-    font-weight: 600;
-    padding: 10px 14px;
+  #text-panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 14px;
     background: #ece7e0;
     border-bottom: 1px solid #c4b9ad;
     flex-shrink: 0;
+    gap: 8px;
+    flex-wrap: wrap;
   }
+  #text-panel-header h2 {
+    font-size: 14px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  /* panel tabs */
+  #panel-tabs {
+    display: flex;
+    gap: 2px;
+    margin-left: 4px;
+  }
+  .panel-tab {
+    padding: 2px 10px;
+    font-size: 12px;
+    font-weight: 600;
+    border: 1px solid #c4b9ad;
+    border-radius: 3px 3px 0 0;
+    cursor: pointer;
+    background: #d4c5b2;
+    color: #5a4e42;
+  }
+  .panel-tab.active {
+    background: #fff;
+    border-bottom-color: #fff;
+    color: #1c1b1f;
+  }
+
+  #version-bar {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: auto;
+  }
+  #version-label {
+    font-size: 11px;
+    color: #5a4e42;
+    white-space: nowrap;
+  }
+  #version-bar.hidden { display: none; }
 
   #text-output {
     flex: 1;
@@ -147,6 +368,18 @@
     line-height: 1.6;
     white-space: pre-wrap;
     word-break: break-word;
+  }
+  #json-output {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px 14px;
+    font-size: 11px;
+    font-family: monospace;
+    line-height: 1.5;
+    white-space: pre;
+    word-break: break-all;
+    background: #faf9f7;
+    display: none;
   }
 
   .text-block {
@@ -192,56 +425,85 @@
 <!-- ── toolbar ─────────────────────────────────────────── -->
 <div id="toolbar">
   <h1>Scan Reader</h1>
-  <label for="server-url" style="font-size:13px">Server:</label>
+  <button id="back-btn" class="btn btn-primary" style="display:none">← Pages</button>
+  <label id="server-url-label" for="server-url" style="font-size:13px">Server:</label>
   <input id="server-url" type="text" value="" />
   <label class="btn btn-primary" style="cursor:pointer">
-    Open file
+    Add page
     <input id="file-input" type="file" accept="image/jpeg,image/png,image/tiff" style="display:none" />
   </label>
   <button id="paste-btn" class="btn btn-primary">Paste</button>
-  <button id="process-btn" class="btn btn-primary" disabled>Process</button>
+  <button id="process-btn" class="btn btn-primary" style="display:none">Process</button>
+  <select id="lang-select" style="display:none" title="OCR language">
+    <option value="">Auto</option>
+    <option value="ru">RU</option>
+    <option value="en">EN</option>
+    <option value="uk">UK</option>
+    <option value="de">DE</option>
+    <option value="fr">FR</option>
+    <option value="es">ES</option>
+  </select>
+  <button id="copy-text-btn" class="btn-sm" style="display:none">Copy text</button>
   <span id="hint">Ctrl+V anywhere on the page also works</span>
 </div>
 
-<!-- ── main ─────────────────────────────────────────────── -->
-<div id="main">
+<!-- ── home view ─────────────────────────────────────────── -->
+<div id="home-view" class="view">
+  <div id="home-header">
+    <h2>Pages</h2>
+  </div>
+  <div id="home-empty" style="display:none">
+    Drop a scanned page here,<br/>
+    click <strong>Add page</strong> in the toolbar, or paste from clipboard.
+  </div>
+  <div id="home-grid"></div>
+</div>
 
+<!-- ── versions view ─────────────────────────────────────── -->
+<div id="versions-view" class="view hidden">
+  <div id="versions-header">
+    <span id="versions-title"></span>
+    <span id="versions-status"></span>
+    <button id="versions-process-btn" class="btn btn-primary">Process new version</button>
+    <button id="versions-delete-page-btn" class="btn-sm">Delete page</button>
+  </div>
+  <div id="versions-empty" style="display:none">
+    No versions yet — click <strong>Process new version</strong> to start.
+  </div>
+  <div id="versions-grid"></div>
+</div>
+
+<!-- ── reader view ────────────────────────────────── -->
+<div id="main" class="hidden">
   <!-- canvas side -->
   <div id="canvas-panel">
     <div id="drop-zone">
       Drop a scanned page here,<br/>
-      click <strong>Open file</strong>, or paste from clipboard.
+      click <strong>Add page</strong>, or paste from clipboard.
     </div>
     <div id="canvas-wrap">
       <canvas id="page-canvas"></canvas>
       <div id="legend">
         <div class="legend-item">
-          <div class="legend-swatch" style="background:rgba(30,100,255,.15);border-color:#1e64ff"></div>
-          Text
+          <div class="legend-swatch" style="background:rgba(30,100,255,.15);border-color:#1e64ff"></div>Text
         </div>
         <div class="legend-item">
-          <div class="legend-swatch" style="background:rgba(140,0,255,.15);border-color:#8c00ff"></div>
-          Heading
+          <div class="legend-swatch" style="background:rgba(140,0,255,.15);border-color:#8c00ff"></div>Heading
         </div>
         <div class="legend-item">
-          <div class="legend-swatch" style="background:rgba(0,170,60,.15);border-color:#00aa3c"></div>
-          Picture
+          <div class="legend-swatch" style="background:rgba(0,170,60,.15);border-color:#00aa3c"></div>Picture
         </div>
         <div class="legend-item">
-          <div class="legend-swatch" style="background:rgba(255,120,0,.15);border-color:#ff7800"></div>
-          Table
+          <div class="legend-swatch" style="background:rgba(255,120,0,.15);border-color:#ff7800"></div>Table
         </div>
         <div class="legend-item">
-          <div class="legend-swatch" style="background:rgba(110,110,110,.15);border-color:#6e6e6e"></div>
-          Footer
+          <div class="legend-swatch" style="background:rgba(110,110,110,.15);border-color:#6e6e6e"></div>Footer
         </div>
         <div class="legend-item">
-          <div class="legend-swatch" style="background:rgba(0,190,190,.15);border-color:#00bebe"></div>
-          Reference
+          <div class="legend-swatch" style="background:rgba(0,190,190,.15);border-color:#00bebe"></div>Reference
         </div>
         <div class="legend-item">
-          <div class="legend-swatch" style="background:rgba(200,0,60,.15);border-color:#c8003c"></div>
-          Formula
+          <div class="legend-swatch" style="background:rgba(200,0,60,.15);border-color:#c8003c"></div>Formula
         </div>
       </div>
     </div>
@@ -249,19 +511,30 @@
 
   <!-- text side -->
   <div id="text-panel">
-    <h2>OCR Output</h2>
+    <div id="text-panel-header">
+      <h2 id="reader-page-name" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px"></h2>
+      <div id="panel-tabs">
+        <button class="panel-tab active" id="tab-text">Text</button>
+        <button class="panel-tab" id="tab-json">JSON</button>
+      </div>
+      <div id="version-bar" class="hidden">
+        <button class="btn-sm" id="prev-ver">‹</button>
+        <span id="version-label"></span>
+        <button class="btn-sm" id="next-ver">›</button>
+        <button class="btn-sm" id="delete-ver-btn" title="Delete this result">×</button>
+      </div>
+    </div>
     <div id="text-output"><span style="color:#9e8e7a;font-size:13px">Process a page to see OCR results.</span></div>
+    <div id="json-output"></div>
     <div id="status"></div>
   </div>
-
 </div>
 
 <script>
-// ── state ──────────────────────────────────────────────────────────────────
-let currentImage = null;   // HTMLImageElement
-let currentPageData = null;
-let sessionId = 'web-' + Date.now();
+// ── helpers ───────────────────────────────────────────────────────────────────
+function serverBase() { return serverUrlEl.value.replace(/\/$/, ''); }
 
+// ── constants ──────────────────────────────────────────────────────────────────
 const BLOCK_STYLES = {
   TEXT:      { fill: 'rgba(30,100,255,.10)',  stroke: '#1e64ff' },
   HEADING:   { fill: 'rgba(140,0,255,.10)',   stroke: '#8c00ff' },
@@ -272,90 +545,488 @@ const BLOCK_STYLES = {
   FORMULA:   { fill: 'rgba(200,0,60,.10)',    stroke: '#c8003c' },
 };
 
-// ── elements ────────────────────────────────────────────────────────────────
-const fileInput    = document.getElementById('file-input');
-const processBtn   = document.getElementById('process-btn');
-const canvas       = document.getElementById('page-canvas');
-const canvasWrap   = document.getElementById('canvas-wrap');
-const dropZone     = document.getElementById('drop-zone');
-const textOutput   = document.getElementById('text-output');
-const statusEl     = document.getElementById('status');
-const serverUrlEl  = document.getElementById('server-url');
-const ctx          = canvas.getContext('2d');
+// ── state ──────────────────────────────────────────────────────────────────────
+let pages = [];
+let selectedPageId  = null;
+let selectedVerIdx  = -1;
+let currentImage    = null;
+let versionsPageId  = null;  // page whose versions view is open
 
-// default server URL
-serverUrlEl.value = window.location.origin.startsWith('file')
+// ── elements ──────────────────────────────────────────────────────────────────
+const fileInput       = document.getElementById('file-input');
+const processBtn      = document.getElementById('process-btn');
+const canvas          = document.getElementById('page-canvas');
+const canvasWrap      = document.getElementById('canvas-wrap');
+const dropZone        = document.getElementById('drop-zone');
+const textOutput      = document.getElementById('text-output');
+const statusEl        = document.getElementById('status');
+const serverUrlEl     = document.getElementById('server-url');
+const versionBar      = document.getElementById('version-bar');
+const versionLabel    = document.getElementById('version-label');
+const prevVerBtn      = document.getElementById('prev-ver');
+const nextVerBtn      = document.getElementById('next-ver');
+const ctx             = canvas.getContext('2d');
+const homeView        = document.getElementById('home-view');
+const versionsView    = document.getElementById('versions-view');
+const mainView        = document.getElementById('main');
+const backBtn         = document.getElementById('back-btn');
+const homeGrid        = document.getElementById('home-grid');
+const homeEmpty       = document.getElementById('home-empty');
+const langSelect      = document.getElementById('lang-select');
+const copyTextBtn     = document.getElementById('copy-text-btn');
+const versionsGrid    = document.getElementById('versions-grid');
+const versionsTitle   = document.getElementById('versions-title');
+const versionsStatus  = document.getElementById('versions-status');
+const versionsEmpty   = document.getElementById('versions-empty');
+const jsonOutput      = document.getElementById('json-output');
+const tabText         = document.getElementById('tab-text');
+const tabJson         = document.getElementById('tab-json');
+
+const isLocal = window.location.origin.startsWith('file') || window.location.hostname === 'localhost';
+serverUrlEl.value = isLocal
   ? 'http://localhost:8001'
-  : window.location.origin.replace('scanreader.dobby', 'scanapi.dobby');
+  : window.location.origin.replace(/scanreader\./, 'scanreader-api.');
+if (!isLocal) {
+  document.getElementById('server-url-label').style.display = 'none';
+  serverUrlEl.style.display = 'none';
+}
 
-// ── load image ──────────────────────────────────────────────────────────────
-function loadImageFile(file) {
-  if (!file || !file.type.startsWith('image/')) return;
-  const url = URL.createObjectURL(file);
+// ── server persistence ────────────────────────────────────────────────────────
+async function loadFromServer() {
+  try {
+    const res = await fetch(`${serverBase()}/api/pages`);
+    if (!res.ok) throw new Error(`${res.status}`);
+    const data = await res.json();
+    pages = data.map(p => ({ ...p, imageUrl: serverBase() + p.imageUrl, language: p.language ?? null }));
+  } catch (e) {
+    setStatus(`Could not load pages from server: ${e.message}`);
+    pages = [];
+  }
+  goHome();
+}
+
+// ── view switching ────────────────────────────────────────────────────────────
+function showOnly(view) {
+  homeView.classList.toggle('hidden', view !== 'home');
+  versionsView.classList.toggle('hidden', view !== 'versions');
+  mainView.classList.toggle('hidden', view !== 'reader');
+}
+
+function goHome() {
+  showOnly('home');
+  backBtn.style.display = 'none';
+  processBtn.style.display = 'none';
+  langSelect.style.display = 'none';
+  copyTextBtn.style.display = 'none';
+  versionsPageId = null;
+  renderHome();
+}
+
+function goVersions(id) {
+  versionsPageId = id;
+  showOnly('versions');
+  backBtn.style.display = '';
+  backBtn.textContent = '← Pages';
+  processBtn.style.display = 'none';
+  langSelect.style.display = 'none';
+  copyTextBtn.style.display = 'none';
+  renderVersionsView(id);
+}
+
+function goReader(id, verIdx = -1) {
+  showOnly('reader');
+  backBtn.style.display = '';
+  backBtn.textContent = '← Versions';
+  processBtn.style.display = '';
+  langSelect.style.display = '';
+  copyTextBtn.style.display = '';
+  selectPage(id, verIdx);
+}
+
+backBtn.addEventListener('click', () => {
+  if (mainView.classList.contains('hidden') === false) {
+    // in reader → back to versions
+    goVersions(selectedPageId);
+  } else {
+    // in versions → back to home
+    goHome();
+  }
+});
+
+// ── home view ─────────────────────────────────────────────────────────────────
+function renderHome() {
+  homeGrid.innerHTML = '';
+  if (pages.length === 0) { homeEmpty.style.display = ''; return; }
+  homeEmpty.style.display = 'none';
+
+  pages.forEach(page => {
+    const card = document.createElement('div');
+    card.className = 'page-card';
+
+    const thumb = document.createElement('img');
+    thumb.className = 'card-thumb';
+    thumb.src = page.imageUrl;
+    thumb.alt = page.name;
+
+    const body = document.createElement('div');
+    body.className = 'card-body';
+
+    const nameEl = document.createElement('div');
+    nameEl.className = 'card-name';
+    nameEl.textContent = page.name;
+    nameEl.title = page.name;
+
+    const meta = document.createElement('div');
+    meta.className = 'card-meta';
+    const n = page.versions.length;
+    if (n > 0) {
+      const commit = page.versions[n - 1].result?.pipelineCommit;
+      const commitStr = commit && commit !== 'unknown' ? ` · ${commit.slice(0, 7)}` : '';
+      meta.textContent = `${n} version${n > 1 ? 's' : ''}${commitStr}`;
+    } else {
+      meta.textContent = 'Not processed yet';
+    }
+
+    body.appendChild(nameEl);
+    body.appendChild(meta);
+
+    const actions = document.createElement('div');
+    actions.className = 'card-actions';
+
+    const delBtn = document.createElement('button');
+    delBtn.className = 'btn-sm';
+    delBtn.textContent = 'Delete';
+    delBtn.addEventListener('click', e => { e.stopPropagation(); deletePage(page.id); });
+    actions.appendChild(delBtn);
+
+    card.appendChild(thumb);
+    card.appendChild(body);
+    card.appendChild(actions);
+    card.addEventListener('click', () => goVersions(page.id));
+
+    homeGrid.appendChild(card);
+  });
+}
+
+// ── versions view ─────────────────────────────────────────────────────────────
+function renderVersionsView(pageId) {
+  const page = pages.find(p => p.id === pageId);
+  if (!page) { goHome(); return; }
+
+  versionsTitle.textContent = page.name;
+  versionsStatus.textContent = '';
+  versionsGrid.innerHTML = '';
+
+  if (page.versions.length === 0) {
+    versionsEmpty.style.display = '';
+    return;
+  }
+  versionsEmpty.style.display = 'none';
+
+  // Show newest first
+  [...page.versions].reverse().forEach((ver, revIdx) => {
+    const verIdx = page.versions.length - 1 - revIdx;
+    versionsGrid.appendChild(buildVersionCard(page, verIdx, ver));
+  });
+}
+
+function buildVersionCard(page, verIdx, ver) {
+  const card = document.createElement('div');
+  card.className = 'ver-card';
+
+  // Canvas with markup
+  const cv = document.createElement('canvas');
+  cv.className = 'ver-canvas';
+
+  const img = new Image();
+  img.onload = () => {
+    const W = cv.parentElement ? cv.parentElement.clientWidth || 200 : 200;
+    const H = Math.round(W * img.naturalHeight / img.naturalWidth);
+    cv.width = W;
+    cv.height = H;
+    const c = cv.getContext('2d');
+    c.drawImage(img, 0, 0, W, H);
+
+    const result = ver.result;
+    if (result?.blocks) {
+      const sx = W / result.width, sy = H / result.height;
+      result.blocks.forEach(block => {
+        const s = BLOCK_STYLES[block.type] || BLOCK_STYLES.TEXT;
+        const { x, y, width, height } = block.bbox;
+        c.fillStyle = s.fill;
+        c.strokeStyle = s.stroke;
+        c.lineWidth = 1.5;
+        c.fillRect(x*sx, y*sy, width*sx, height*sy);
+        c.strokeRect(x*sx, y*sy, width*sx, height*sy);
+
+        if (block.words?.length) {
+          c.strokeStyle = s.stroke;
+          c.lineWidth = 0.5;
+          block.words.forEach(word => {
+            const b = word.bbox;
+            c.strokeRect(b.x*sx, b.y*sy, b.width*sx, b.height*sy);
+          });
+        }
+      });
+    }
+  };
+  img.src = page.imageUrl;
+
+  // Info
+  const info = document.createElement('div');
+  info.className = 'ver-info';
+
+  const numEl = document.createElement('div');
+  numEl.className = 'ver-num';
+  numEl.textContent = `Version ${verIdx + 1}`;
+
+  const timeEl = document.createElement('div');
+  timeEl.className = 'ver-time';
+  timeEl.textContent = new Date(ver.ts).toLocaleString([], {
+    month: 'short', day: 'numeric',
+    hour: '2-digit', minute: '2-digit'
+  });
+
+  const commit = ver.result?.pipelineCommit;
+  const commitEl = document.createElement('div');
+  commitEl.className = 'ver-commit';
+  commitEl.textContent = commit && commit !== 'unknown'
+    ? `pipeline: ${commit.slice(0, 7)}`
+    : 'pipeline: unknown';
+
+  info.appendChild(numEl);
+  info.appendChild(timeEl);
+  info.appendChild(commitEl);
+
+  // Actions
+  const actions = document.createElement('div');
+  actions.className = 'ver-actions';
+
+  const openBtn = document.createElement('button');
+  openBtn.className = 'btn-sm';
+  openBtn.textContent = 'View';
+  openBtn.addEventListener('click', e => { e.stopPropagation(); goReader(page.id, verIdx); });
+
+  const delBtn = document.createElement('button');
+  delBtn.className = 'btn-sm';
+  delBtn.textContent = '×';
+  delBtn.title = 'Delete this version';
+  delBtn.addEventListener('click', async e => {
+    e.stopPropagation();
+    try {
+      const res = await fetch(`${serverBase()}/api/pages/${page.id}/results/${ver.ts}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error(`${res.status}`);
+      page.versions.splice(verIdx, 1);
+      renderVersionsView(page.id);
+    } catch (err) {
+      versionsStatus.textContent = `Delete failed: ${err.message}`;
+    }
+  });
+
+  actions.appendChild(openBtn);
+  actions.appendChild(delBtn);
+
+  card.appendChild(cv);
+  card.appendChild(info);
+  card.appendChild(actions);
+  card.addEventListener('click', () => goReader(page.id, verIdx));
+
+  return card;
+}
+
+// Process new version from versions view
+document.getElementById('versions-process-btn').addEventListener('click', async () => {
+  const page = pages.find(p => p.id === versionsPageId);
+  if (!page) return;
+  const btn = document.getElementById('versions-process-btn');
+  btn.disabled = true;
+  versionsStatus.innerHTML = '<span class="spinner"></span>Processing…';
+
+  try {
+    const result = await processPage(page.id);
+    page.versions.push({ ts: Date.now(), result });
+    renderVersionsView(page.id);
+    versionsStatus.textContent = `Done — ${result.blocks.length} block(s).`;
+  } catch (e) {
+    versionsStatus.textContent = `Error: ${e.message}`;
+  } finally {
+    btn.disabled = false;
+  }
+});
+
+// Delete whole page from versions view
+document.getElementById('versions-delete-page-btn').addEventListener('click', () => {
+  if (versionsPageId) deletePage(versionsPageId);
+});
+
+// ── version bar (reader) ──────────────────────────────────────────────────────
+function updateVersionBar() {
+  const page = pages.find(p => p.id === selectedPageId);
+  if (!page || page.versions.length === 0) { versionBar.classList.add('hidden'); return; }
+  versionBar.classList.remove('hidden');
+  const total = page.versions.length;
+  const ts = new Date(page.versions[selectedVerIdx].ts);
+  const timeStr = ts.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  const commit = page.versions[selectedVerIdx].result?.pipelineCommit;
+  const commitStr = commit && commit !== 'unknown' ? ` · ${commit.slice(0, 7)}` : '';
+  versionLabel.textContent = `v${selectedVerIdx + 1}/${total} · ${timeStr}${commitStr}`;
+  prevVerBtn.disabled = selectedVerIdx <= 0;
+  nextVerBtn.disabled = selectedVerIdx >= total - 1;
+}
+
+prevVerBtn.addEventListener('click', () => {
+  if (selectedVerIdx > 0) showVersion(selectedVerIdx - 1);
+});
+nextVerBtn.addEventListener('click', () => {
+  const page = pages.find(p => p.id === selectedPageId);
+  if (page && selectedVerIdx < page.versions.length - 1) showVersion(selectedVerIdx + 1);
+});
+
+document.getElementById('delete-ver-btn').addEventListener('click', async () => {
+  const page = pages.find(p => p.id === selectedPageId);
+  if (!page || selectedVerIdx < 0) return;
+  const ver = page.versions[selectedVerIdx];
+  try {
+    const res = await fetch(`${serverBase()}/api/pages/${page.id}/results/${ver.ts}`, { method: 'DELETE' });
+    if (!res.ok) throw new Error(`${res.status}`);
+    page.versions.splice(selectedVerIdx, 1);
+    if (page.versions.length === 0) {
+      selectedVerIdx = -1;
+      renderCanvas(currentImage, null);
+      clearText();
+      updateVersionBar();
+      setStatus('Result deleted.');
+    } else {
+      showVersion(Math.min(selectedVerIdx, page.versions.length - 1));
+    }
+  } catch (e) {
+    setStatus(`Delete failed: ${e.message}`);
+  }
+});
+
+function showVersion(idx) {
+  const page = pages.find(p => p.id === selectedPageId);
+  if (!page) return;
+  selectedVerIdx = idx;
+  renderCanvas(currentImage, page.versions[idx].result);
+  renderText(page.versions[idx].result);
+  updateVersionBar();
+}
+
+// ── select page (reader) ──────────────────────────────────────────────────────
+function selectPage(id, requestedVerIdx = -1) {
+  selectedPageId = id;
+  const page = pages.find(p => p.id === id);
+  if (!page) return;
+
+  selectedVerIdx = requestedVerIdx >= 0
+    ? requestedVerIdx
+    : (page.versions.length > 0 ? page.versions.length - 1 : -1);
+
+  document.getElementById('reader-page-name').textContent = page.name;
+  langSelect.value = page.language || '';
+
   const img = new Image();
   img.onload = () => {
     currentImage = img;
-    currentPageData = null;
-    renderCanvas(img, null);
+    const result = selectedVerIdx >= 0 ? page.versions[selectedVerIdx].result : null;
+    renderCanvas(img, result);
+    if (result) renderText(result);
+    else clearText();
     processBtn.disabled = false;
-    setStatus('Image loaded — click Process to send to server.');
-    clearText();
+    updateVersionBar();
+    setStatus(result
+      ? `${page.name} — v${selectedVerIdx + 1}, ${result.blocks.length} block(s).`
+      : `${page.name} loaded — click Process.`);
   };
-  img.src = url;
+  img.src = page.imageUrl;
 }
 
+// ── upload & add page ─────────────────────────────────────────────────────────
+async function uploadAndAddPage(fileOrBlob, name) {
+  const id = 'p' + Date.now();
+  setStatus('Uploading…', true);
+  const fd = new FormData();
+  fd.append('file', fileOrBlob, 'page.jpg');
+  fd.append('name', name);
+  const res = await fetch(`${serverBase()}/pages/${id}/0`, { method: 'POST', body: fd });
+  if (!res.ok) throw new Error(`Upload failed: ${res.status}`);
+  pages.push({ id, name, imageUrl: `${serverBase()}/api/pages/${id}/image`, language: null, versions: [] });
+  goVersions(id);
+}
+
+// ── load image helpers ────────────────────────────────────────────────────────
+function loadImageFile(file) {
+  if (!file || !file.type.startsWith('image/')) return;
+  const name = file.name.replace(/\.[^.]+$/, '') || `Page ${pages.length + 1}`;
+  uploadAndAddPage(file, name).catch(e => setStatus(`Error: ${e.message}`));
+}
 function loadImageBlob(blob) {
-  loadImageFile(blob);
+  uploadAndAddPage(blob, `Page ${pages.length + 1}`).catch(e => setStatus(`Error: ${e.message}`));
 }
 
-// ── canvas rendering ─────────────────────────────────────────────────────────
+// ── canvas rendering ──────────────────────────────────────────────────────────
+function drawBlocks(c, w, h, pageData) {
+  if (!pageData?.blocks) return;
+  const sx = w / pageData.width, sy = h / pageData.height;
+  pageData.blocks.forEach(block => {
+    const s = BLOCK_STYLES[block.type] || BLOCK_STYLES.TEXT;
+    const { x, y, width, height } = block.bbox;
+    c.fillStyle = s.fill;
+    c.strokeStyle = s.stroke;
+    c.lineWidth = 2;
+    c.fillRect(x*sx, y*sy, width*sx, height*sy);
+    c.strokeRect(x*sx, y*sy, width*sx, height*sy);
+
+    // word boundaries + baseline (doctr)
+    if (block.words?.length) {
+      c.strokeStyle = s.stroke;
+      c.lineWidth = 0.75;
+      block.words.forEach(word => {
+        const b = word.bbox;
+        c.strokeRect(b.x*sx, b.y*sy, b.width*sx, b.height*sy);
+        if (word.baseline != null) {
+          const by = (b.y + b.height - word.baseline) * sy;
+          c.beginPath();
+          c.moveTo(b.x * sx, by);
+          c.lineTo((b.x + b.width) * sx, by);
+          c.stroke();
+        }
+      });
+    }
+  });
+}
+
 function renderCanvas(img, pageData) {
-  // fit image into available panel width (max 900px)
   const maxW = Math.min(canvasWrap.parentElement.clientWidth - 32, 900);
   const scale = Math.min(maxW / img.naturalWidth, 1);
   canvas.width  = Math.round(img.naturalWidth  * scale);
   canvas.height = Math.round(img.naturalHeight * scale);
-
   ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-
-  if (pageData) {
-    const sx = canvas.width  / pageData.width;
-    const sy = canvas.height / pageData.height;
-    pageData.blocks.forEach(block => {
-      const style = BLOCK_STYLES[block.type] || BLOCK_STYLES.TEXT;
-      const { x, y, width, height } = block.bbox;
-      ctx.fillStyle = style.fill;
-      ctx.strokeStyle = style.stroke;
-      ctx.lineWidth = 2;
-      ctx.fillRect(x * sx, y * sy, width * sx, height * sy);
-      ctx.strokeRect(x * sx, y * sy, width * sx, height * sy);
-    });
-  }
-
+  drawBlocks(ctx, canvas.width, canvas.height, pageData);
   dropZone.classList.add('hidden');
   canvasWrap.classList.add('visible');
 }
 
-// ── text panel ───────────────────────────────────────────────────────────────
+// ── text panel ────────────────────────────────────────────────────────────────
 function renderText(pageData) {
+  jsonOutput.textContent = JSON.stringify(pageData, null, 2);
   textOutput.innerHTML = '';
   pageData.blocks.forEach((block, i) => {
     const div = document.createElement('div');
     div.className = 'text-block';
-
     const label = document.createElement('div');
     label.className = 'block-label';
-    const style = BLOCK_STYLES[block.type] || BLOCK_STYLES.TEXT;
-    label.style.color = style.stroke;
+    const s = BLOCK_STYLES[block.type] || BLOCK_STYLES.TEXT;
+    label.style.color = s.stroke;
     label.textContent = (block.type || 'BLOCK') + ` #${i + 1}`;
     div.appendChild(label);
-
     if (block.type === 'PICTURE') {
       if (block.imageUrl) {
-        const img = document.createElement('img');
-        img.src = serverUrlEl.value + block.imageUrl;
-        img.style.maxWidth = '100%';
-        div.appendChild(img);
+        const im = document.createElement('img');
+        im.src = serverUrlEl.value + block.imageUrl;
+        im.style.maxWidth = '100%';
+        div.appendChild(im);
       } else {
         const note = document.createElement('em');
         note.textContent = '[picture]';
@@ -367,63 +1038,66 @@ function renderText(pageData) {
       p.textContent = block.text || '';
       div.appendChild(p);
     }
-
     textOutput.appendChild(div);
   });
 }
 
 function clearText() {
   textOutput.innerHTML = '<span style="color:#9e8e7a;font-size:13px">Process a page to see OCR results.</span>';
+  jsonOutput.textContent = '';
 }
+
+// ── panel tabs ────────────────────────────────────────────────────────────────
+function setActiveTab(tab) {
+  const isJson = tab === 'json';
+  tabText.classList.toggle('active', !isJson);
+  tabJson.classList.toggle('active', isJson);
+  textOutput.style.display = isJson ? 'none' : 'block';
+  jsonOutput.style.display = isJson ? 'block' : 'none';
+}
+tabText.addEventListener('click', () => setActiveTab('text'));
+tabJson.addEventListener('click', () => setActiveTab('json'));
 
 // ── status ────────────────────────────────────────────────────────────────────
 function setStatus(msg, loading = false) {
-  statusEl.innerHTML = loading
-    ? `<span class="spinner"></span>${msg}`
-    : msg;
+  statusEl.innerHTML = loading ? `<span class="spinner"></span>${msg}` : msg;
 }
 
-// ── process ───────────────────────────────────────────────────────────────────
+// ── core process logic ────────────────────────────────────────────────────────
+async function processPage(pageId) {
+  const page = pages.find(p => p.id === pageId);
+  const res = await fetch(`${serverBase()}/rpc`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      jsonrpc: '2.0', method: 'process_page',
+      params: { book_id: pageId, page_num: 0 }, id: 1
+    })
+  });
+  if (!res.ok) throw new Error(`RPC request failed: ${res.status}`);
+  const body = await res.json();
+  if (body.error) throw new Error(body.error.message);
+  const result = body.result;
+  if (result.language && page && !page.language) page.language = result.language;
+  return result;
+}
+
+// ── process button (reader) ───────────────────────────────────────────────────
 processBtn.addEventListener('click', async () => {
-  if (!currentImage) return;
-  const base = serverUrlEl.value.replace(/\/$/, '');
+  const page = pages.find(p => p.id === selectedPageId);
+  if (!page || !currentImage) return;
   processBtn.disabled = true;
-  setStatus('Uploading page image…', true);
-
+  setStatus('Processing — waiting for server…', true);
   try {
-    // convert canvas to JPEG blob
-    const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.92));
-
-    // 1. upload image
-    const pageNum = 0;
-    const fd = new FormData();
-    fd.append('file', blob, 'page.jpg');
-    const upRes = await fetch(`${base}/pages/${sessionId}/${pageNum}`, {
-      method: 'POST', body: fd
-    });
-    if (!upRes.ok) throw new Error(`Upload failed: ${upRes.status}`);
-    const { image_id } = await upRes.json();
-
-    // 2. process via JSON-RPC
-    setStatus('Processing — waiting for server…', true);
-    const rpcRes = await fetch(`${base}/rpc`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        jsonrpc: '2.0',
-        method: 'process_page',
-        params: { book_id: sessionId, page_num: pageNum, image_id },
-        id: 1
-      })
-    });
-    if (!rpcRes.ok) throw new Error(`RPC request failed: ${rpcRes.status}`);
-    const rpcBody = await rpcRes.json();
-    if (rpcBody.error) throw new Error(rpcBody.error.message);
-
-    currentPageData = rpcBody.result;
-    renderCanvas(currentImage, currentPageData);
-    renderText(currentPageData);
-    setStatus(`Done — ${currentPageData.blocks.length} block(s) found.`);
+    const result = await processPage(page.id);
+    page.versions.push({ ts: Date.now(), result });
+    selectedVerIdx = page.versions.length - 1;
+    if (result.language) langSelect.value = result.language;
+    renderCanvas(currentImage, result);
+    renderText(result);
+    updateVersionBar();
+    const langNote = result.language ? ` · ${result.language.toUpperCase()}` : '';
+    setStatus(`Done — ${result.blocks.length} block(s)${langNote}.`);
   } catch (e) {
     setStatus(`Error: ${e.message}`);
   } finally {
@@ -431,57 +1105,32 @@ processBtn.addEventListener('click', async () => {
   }
 });
 
-// ── paste button ─────────────────────────────────────────────────────────────
+// ── paste button ──────────────────────────────────────────────────────────────
 document.getElementById('paste-btn').addEventListener('click', async () => {
   try {
     const clipItems = await navigator.clipboard.read();
-    for (const clipItem of clipItems) {
-      for (const type of clipItem.types) {
-        if (type.startsWith('image/')) {
-          loadImageBlob(await clipItem.getType(type));
-          return;
-        }
-      }
-    }
+    for (const clipItem of clipItems)
+      for (const type of clipItem.types)
+        if (type.startsWith('image/')) { loadImageBlob(await clipItem.getType(type)); return; }
     setStatus('No image found in clipboard.');
-  } catch (e) {
-    setStatus('Clipboard access denied — use Ctrl+V or Open file instead.');
+  } catch {
+    setStatus('Clipboard access denied — use Ctrl+V or Add page instead.');
   }
 });
 
 // ── file input ────────────────────────────────────────────────────────────────
-fileInput.addEventListener('change', () => {
-  if (fileInput.files[0]) loadImageFile(fileInput.files[0]);
-  fileInput.value = '';
-});
+fileInput.addEventListener('change', () => { if (fileInput.files[0]) loadImageFile(fileInput.files[0]); fileInput.value = ''; });
 
 // ── clipboard paste ───────────────────────────────────────────────────────────
 document.addEventListener('paste', async e => {
-  // try legacy clipboardData first (works in all browsers)
   const items = (e.clipboardData || e.originalEvent?.clipboardData)?.items;
-  if (items) {
-    for (const item of items) {
-      if (item.type.startsWith('image/')) {
-        loadImageBlob(item.getAsFile());
-        return;
-      }
-    }
-  }
-  // fallback: async Clipboard API
+  if (items) for (const item of items) if (item.type.startsWith('image/')) { loadImageBlob(item.getAsFile()); return; }
   try {
     const clipItems = await navigator.clipboard.read();
-    for (const clipItem of clipItems) {
-      for (const type of clipItem.types) {
-        if (type.startsWith('image/')) {
-          const blob = await clipItem.getType(type);
-          loadImageBlob(blob);
-          return;
-        }
-      }
-    }
-  } catch {
-    // clipboard-read permission denied or not supported — ignore
-  }
+    for (const clipItem of clipItems)
+      for (const type of clipItem.types)
+        if (type.startsWith('image/')) { loadImageBlob(await clipItem.getType(type)); return; }
+  } catch { /* permission denied */ }
 });
 
 // ── drag & drop ───────────────────────────────────────────────────────────────
@@ -489,11 +1138,52 @@ const panel = document.getElementById('canvas-panel');
 panel.addEventListener('dragover', e => { e.preventDefault(); dropZone.style.borderColor = '#8b7d6b'; });
 panel.addEventListener('dragleave', () => { dropZone.style.borderColor = ''; });
 panel.addEventListener('drop', e => {
-  e.preventDefault();
-  dropZone.style.borderColor = '';
+  e.preventDefault(); dropZone.style.borderColor = '';
   const file = e.dataTransfer?.files?.[0];
   if (file) loadImageFile(file);
 });
+
+// ── language selector ─────────────────────────────────────────────────────────
+langSelect.addEventListener('change', async () => {
+  const page = pages.find(p => p.id === selectedPageId);
+  if (!page) return;
+  const lang = langSelect.value || null;
+  try {
+    const res = await fetch(`${serverBase()}/api/pages/${page.id}/language`, {
+      method: 'PUT', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ language: lang }),
+    });
+    if (!res.ok) throw new Error(`${res.status}`);
+    page.language = lang;
+    setStatus(lang ? `Language set to ${lang.toUpperCase()} — reprocess to apply.` : 'Language set to auto-detect — reprocess to apply.');
+  } catch (e) {
+    setStatus(`Failed to set language: ${e.message}`);
+  }
+});
+
+// ── copy text ─────────────────────────────────────────────────────────────────
+copyTextBtn.addEventListener('click', () => {
+  const text = Array.from(textOutput.querySelectorAll('.text-block p')).map(p => p.textContent).join('\n\n');
+  navigator.clipboard.writeText(text)
+    .then(() => setStatus('Text copied to clipboard.'))
+    .catch(() => setStatus('Could not copy — clipboard permission denied.'));
+});
+
+// ── delete page ───────────────────────────────────────────────────────────────
+async function deletePage(id) {
+  if (!confirm('Delete this page permanently?')) return;
+  try {
+    const res = await fetch(`${serverBase()}/api/pages/${id}`, { method: 'DELETE' });
+    if (!res.ok) throw new Error(`${res.status}`);
+    pages = pages.filter(p => p.id !== id);
+    goHome();
+  } catch (e) {
+    setStatus(`Delete failed: ${e.message}`);
+  }
+}
+
+// ── init ──────────────────────────────────────────────────────────────────────
+loadFromServer();
 </script>
 </body>
 </html>
