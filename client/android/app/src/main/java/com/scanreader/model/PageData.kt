@@ -24,7 +24,8 @@ data class ContentBlock(
 @Serializable
 data class Word(
     val bbox: BoundingBox,
-    val text: String
+    val text: String? = null,
+    val baseline: Int? = null
 )
 
 @Serializable

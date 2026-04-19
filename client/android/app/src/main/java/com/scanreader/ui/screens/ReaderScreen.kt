@@ -72,10 +72,13 @@ fun ReaderScreen(
             when {
                 isLoading -> CircularProgressIndicator()
                 error != null -> Text("Error: $error")
-                pageData != null -> when (settings.viewMode) {
-                    ViewMode.ORIGINAL -> OriginalPageView(pageData = pageData!!)
-                    ViewMode.REFLOW -> ReflowView(pageData = pageData!, settings = settings)
-                    ViewMode.TEXT -> TextReaderView(pageData = pageData!, settings = settings)
+                pageData != null -> {
+                    val data = pageData!!
+                    when (settings.viewMode) {
+                        ViewMode.ORIGINAL -> OriginalPageView(pageData = data)
+                        ViewMode.REFLOW -> ReflowView(pageData = data, settings = settings)
+                        ViewMode.TEXT -> TextReaderView(pageData = data, settings = settings)
+                    }
                 }
             }
         }

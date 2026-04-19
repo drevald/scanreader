@@ -1,19 +1,28 @@
 package com.scanreader.viewmodel
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import android.graphics.Bitmap
+import android.graphics.pdf.PdfRenderer
+import android.net.Uri
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.scanreader.decoder.DjvuDecoder
 import com.scanreader.model.Book
+import com.scanreader.model.BookFormat
 import com.scanreader.model.PageData
 import com.scanreader.model.ReaderSettings
 import com.scanreader.model.ViewMode
 import com.scanreader.network.ScanReaderApi
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.ByteArrayOutputStream
 
-class ReaderViewModel : ViewModel() {
+class ReaderViewModel(app: Application) : AndroidViewModel(app) {
 
-    // TODO: inject via factory
+    // TODO: inject via factory / settings
     private val api = ScanReaderApi(baseUrl = "http://10.0.2.2:8000")
 
     private val _currentBook = MutableStateFlow<Book?>(null)
@@ -64,7 +73,6 @@ class ReaderViewModel : ViewModel() {
             _isLoading.value = true
             _error.value = null
             try {
-                // TODO: render page from DjVu/PDF to JPEG bytes using local decoder
                 val imageBytes = renderPageToJpeg(book, pageNum)
                 val imageId = api.uploadPageImage(book.id, pageNum, imageBytes)
                 _pageData.value = api.processPage(book.id, pageNum, imageId)
@@ -76,8 +84,43 @@ class ReaderViewModel : ViewModel() {
         }
     }
 
-    // Stub — replace with DjVu/PDF decoder from sibling project
-    private fun renderPageToJpeg(book: Book, pageNum: Int): ByteArray {
-        TODO("Integrate DjVu/PDF decoder from flow-reader")
+    private suspend fun renderPageToJpeg(book: Book, pageNum: Int): ByteArray =
+        withContext(Dispatchers.IO) {
+            val app = getApplication<Application>()
+            val uri = Uri.parse(book.filePath)
+            when (book.format) {
+                BookFormat.RASTER -> {
+                    app.contentResolver
+                        .openInputStream(uri)
+                        ?.use { it.readBytes() }
+                        ?: throw Exception("Cannot read image: ${book.filePath}")
+                }
+                BookFormat.PDF -> renderPdfPageToJpeg(app, uri, pageNum)
+                BookFormat.DJVU -> DjvuDecoder.renderPage(
+                    contentResolver = app.contentResolver,
+                    cacheDir = app.cacheDir,
+                    uri = uri,
+                    pageNum = pageNum
+                )
+            }
+        }
+
+    private fun renderPdfPageToJpeg(app: Application, uri: Uri, pageNum: Int): ByteArray {
+        val fd = app.contentResolver.openFileDescriptor(uri, "r")
+            ?: throw Exception("Cannot open PDF: $uri")
+        return fd.use {
+            PdfRenderer(fd).use { renderer ->
+                if (pageNum >= renderer.pageCount)
+                    throw Exception("Page $pageNum out of range (${renderer.pageCount} pages)")
+                renderer.openPage(pageNum).use { page ->
+                    val bm = Bitmap.createBitmap(page.width, page.height, Bitmap.Config.ARGB_8888)
+                    page.render(bm, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
+                    val out = ByteArrayOutputStream()
+                    bm.compress(Bitmap.CompressFormat.JPEG, 90, out)
+                    bm.recycle()
+                    out.toByteArray()
+                }
+            }
+        }
     }
 }
