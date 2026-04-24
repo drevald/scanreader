@@ -42,17 +42,16 @@ fun LibraryScreen(
     val books by vm.books.collectAsState()
 
     val filePicker = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent()
+        contract = ActivityResultContracts.OpenDocument()
     ) { uri ->
         uri ?: return@rememberLauncherForActivityResult
-        val name = uri.lastPathSegment ?: "Unknown"
-        vm.addBook(uri, name)
+        vm.addBookFromUri(uri)
     }
 
     Scaffold(
         topBar = { PageHeader() },
         floatingActionButton = {
-            FloatingActionButton(onClick = { filePicker.launch("*/*") }) {
+            FloatingActionButton(onClick = { filePicker.launch(arrayOf("*/*")) }) {
                 Icon(Icons.Default.Add, contentDescription = "Add book")
             }
         }

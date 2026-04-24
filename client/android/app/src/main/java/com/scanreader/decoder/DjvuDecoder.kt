@@ -21,23 +21,52 @@ object DjvuDecoder {
         }
     }
 
+    fun getPageCount(contentResolver: ContentResolver, cacheDir: File, uri: Uri): Int {
+        if (!isAvailable) return 1
+        return try {
+            withLocalFile(contentResolver, cacheDir, uri, "djvu_count.djv") { file ->
+                DjvuBook(file.absolutePath).use { it.pageCount() }
+            }
+        } catch (e: Exception) {
+            Log.w(TAG, "Could not read DjVu page count: ${e.message}")
+            1
+        }
+    }
+
     /**
      * Renders [pageNum] (0-based) of the DjVu file at [uri] to JPEG bytes.
-     * The content URI is copied to a temp file first, because the native DjVuLibre
-     * decoder needs a real filesystem path rather than a content-scheme URI.
+     * If [uri] is already a local file URI the native decoder opens it directly;
+     * otherwise the content is copied to a temp file first.
      */
     fun renderPage(contentResolver: ContentResolver, cacheDir: File, uri: Uri, pageNum: Int): ByteArray {
         if (!isAvailable) throw UnsupportedOperationException(
             "DjVu is not available on this device/ABI. Only armeabi-v7a is currently supported."
         )
+        return withLocalFile(contentResolver, cacheDir, uri, "djvu_tmp.djv") { file ->
+            DjvuBook(file.absolutePath).use { book -> book.renderPage(pageNum) }
+        }
+    }
 
-        val tmpFile = File(cacheDir, "djvu_tmp.djv")
-        contentResolver.openInputStream(uri)?.use { input ->
-            tmpFile.outputStream().use { output -> input.copyTo(output) }
-        } ?: throw Exception("Cannot open DjVu file: $uri")
-
+    /**
+     * If [uri] is a `file://` URI, runs [block] with the file directly (no copy).
+     * Otherwise copies the content to [tmpName] in [cacheDir], runs [block], then deletes it.
+     */
+    private fun <T> withLocalFile(
+        contentResolver: ContentResolver,
+        cacheDir: File,
+        uri: Uri,
+        tmpName: String,
+        block: (File) -> T
+    ): T {
+        if (uri.scheme == "file") {
+            return block(File(uri.path!!))
+        }
+        val tmpFile = File(cacheDir, tmpName)
         return try {
-            DjvuBook(tmpFile.absolutePath).use { book -> book.renderPage(pageNum) }
+            contentResolver.openInputStream(uri)?.use { input ->
+                tmpFile.outputStream().use { output -> input.copyTo(output) }
+            } ?: throw Exception("Cannot open DjVu file: $uri")
+            block(tmpFile)
         } finally {
             tmpFile.delete()
         }

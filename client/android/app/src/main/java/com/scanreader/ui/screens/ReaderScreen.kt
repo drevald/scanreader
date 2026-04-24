@@ -31,6 +31,7 @@ fun ReaderScreen(
     LaunchedEffect(book.id) { vm.openBook(book) }
 
     val pageData by vm.pageData.collectAsState()
+    val renderedImageBytes by vm.renderedImageBytes.collectAsState()
     val settings by vm.settings.collectAsState()
     val isLoading by vm.isLoading.collectAsState()
     val error by vm.error.collectAsState()
@@ -72,12 +73,14 @@ fun ReaderScreen(
             when {
                 isLoading -> CircularProgressIndicator()
                 error != null -> Text("Error: $error")
-                pageData != null -> {
+                settings.viewMode == ViewMode.ORIGINAL && renderedImageBytes != null ->
+                    OriginalPageView(imageBytes = renderedImageBytes!!)
+                settings.viewMode != ViewMode.ORIGINAL && pageData != null -> {
                     val data = pageData!!
                     when (settings.viewMode) {
-                        ViewMode.ORIGINAL -> OriginalPageView(pageData = data)
                         ViewMode.REFLOW -> ReflowView(pageData = data, settings = settings)
                         ViewMode.TEXT -> TextReaderView(pageData = data, settings = settings)
+                        ViewMode.ORIGINAL -> {} // unreachable
                     }
                 }
             }

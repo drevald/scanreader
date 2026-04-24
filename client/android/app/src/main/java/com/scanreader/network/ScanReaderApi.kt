@@ -3,7 +3,6 @@ package com.scanreader.network
 import com.scanreader.model.PageData
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
-import kotlinx.serialization.serializer
 
 class ScanReaderApi(baseUrl: String) {
 
@@ -20,6 +19,6 @@ class ScanReaderApi(baseUrl: String) {
                 put("page_num", JsonPrimitive(pageNum))
                 put("image_id", JsonPrimitive(imageId))
             },
-            deserializer = serializer()
+            deserializer = PageData.serializer()
         )
 }

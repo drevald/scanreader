@@ -23,7 +23,7 @@ import java.io.ByteArrayOutputStream
 class ReaderViewModel(app: Application) : AndroidViewModel(app) {
 
     // TODO: inject via factory / settings
-    private val api = ScanReaderApi(baseUrl = "http://10.0.2.2:8000")
+    private val api = ScanReaderApi(baseUrl = "http://192.168.0.198:8001")
 
     private val _currentBook = MutableStateFlow<Book?>(null)
     val currentBook: StateFlow<Book?> = _currentBook
@@ -33,6 +33,9 @@ class ReaderViewModel(app: Application) : AndroidViewModel(app) {
 
     private val _pageData = MutableStateFlow<PageData?>(null)
     val pageData: StateFlow<PageData?> = _pageData
+
+    private val _renderedImageBytes = MutableStateFlow<ByteArray?>(null)
+    val renderedImageBytes: StateFlow<ByteArray?> = _renderedImageBytes
 
     private val _settings = MutableStateFlow(ReaderSettings())
     val settings: StateFlow<ReaderSettings> = _settings
@@ -64,7 +67,14 @@ class ReaderViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     fun setViewMode(mode: ViewMode) {
+        val previousMode = _settings.value.viewMode
         _settings.value = _settings.value.copy(viewMode = mode)
+        // If switching into a mode that needs the server and we don't have pageData yet, load now.
+        val needsApi = mode == ViewMode.REFLOW || mode == ViewMode.TEXT
+        val hadApi = previousMode == ViewMode.REFLOW || previousMode == ViewMode.TEXT
+        if (needsApi && !hadApi && _pageData.value == null) {
+            loadPage(_currentPage.value)
+        }
     }
 
     private fun loadPage(pageNum: Int) {
@@ -72,12 +82,17 @@ class ReaderViewModel(app: Application) : AndroidViewModel(app) {
         viewModelScope.launch {
             _isLoading.value = true
             _error.value = null
+            _pageData.value = null
+            _renderedImageBytes.value = null
             try {
                 val imageBytes = renderPageToJpeg(book, pageNum)
-                val imageId = api.uploadPageImage(book.id, pageNum, imageBytes)
-                _pageData.value = api.processPage(book.id, pageNum, imageId)
+                _renderedImageBytes.value = imageBytes
+                if (_settings.value.viewMode == ViewMode.REFLOW || _settings.value.viewMode == ViewMode.TEXT) {
+                    val imageId = api.uploadPageImage(book.id, pageNum, imageBytes)
+                    _pageData.value = api.processPage(book.id, pageNum, imageId)
+                }
             } catch (e: Exception) {
-                _error.value = e.message
+                _error.value = e.message ?: "${e.javaClass.simpleName} (no message)"
             } finally {
                 _isLoading.value = false
             }

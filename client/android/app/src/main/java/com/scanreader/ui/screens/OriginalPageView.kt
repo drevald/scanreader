@@ -13,17 +13,16 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import coil.compose.AsyncImage
-import com.scanreader.model.PageData
 
 /** Shows the raw scanned page image with pinch-to-zoom and pan. */
 @Composable
-fun OriginalPageView(pageData: PageData) {
+fun OriginalPageView(imageBytes: ByteArray) {
     var scale by remember { mutableFloatStateOf(1f) }
     var offset by remember { mutableStateOf(Offset.Zero) }
 
     AsyncImage(
-        model = null, // TODO: pass raw page image URI/bitmap from ViewModel
-        contentDescription = "Page ${pageData.pageNum}",
+        model = imageBytes,
+        contentDescription = null,
         modifier = Modifier
             .fillMaxSize()
             .pointerInput(Unit) {

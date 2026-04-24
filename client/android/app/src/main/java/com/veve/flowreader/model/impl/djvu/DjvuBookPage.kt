@@ -1,10 +1,9 @@
 package com.veve.flowreader.model.impl.djvu
 
-// Static native methods — companion + @JvmStatic produces the same JNI symbol as Java's
-// `private static native byte[] getNativeBytes(...)`.
 internal class DjvuBookPage {
     companion object {
-        @JvmStatic
-        external fun getNativeBytes(bookId: Long, pageNumber: Int): ByteArray
+        @JvmStatic external fun getNativeBytes(bookId: Long, pageNumber: Int): ByteArray
+        @JvmStatic external fun getNativeWidth(bookId: Long, pageNumber: Int): Int
+        @JvmStatic external fun getNativeHeight(bookId: Long, pageNumber: Int): Int
     }
 }
